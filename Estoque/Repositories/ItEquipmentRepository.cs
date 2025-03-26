@@ -12,10 +12,9 @@ namespace Estoque.Repositories {
             _db = db;
         }
 
-        public void InsertEquipment(ItEquipment equipment) {
+        public async Task InsertEquipment(ItEquipment equipment) {
 
-            _db.ItEquipments.Add(equipment);
-            _db.SaveChangesAsync();
+            await _db.ItEquipments.AddAsync(equipment);
         }
 
         public async Task<IEnumerable<ItEquipment>> GetEquipments() {
@@ -38,17 +37,11 @@ namespace Estoque.Repositories {
         public void UpdateEquipment(ItEquipment equipment) {
 
             _db.ItEquipments.Update(equipment);
-            _db.SaveChangesAsync();
         }
 
         public void DeleteEquipment(ItEquipment equipment) {
 
             _db.ItEquipments.Remove(equipment);
-            _db.SaveChangesAsync();
-        }
-
-        Task IItEquipmentRepository.InsertEquipment(ItEquipment equipment) {
-            throw new NotImplementedException();
         }
 
         public async Task<bool> SaveChanges() {

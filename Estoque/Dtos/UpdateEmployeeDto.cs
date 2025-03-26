@@ -1,8 +1,8 @@
 ﻿using Estoque.Models;
 using System.ComponentModel.DataAnnotations;
 
-namespace Estoque.ViewModels {
-    public class UpdateEmployeeViewModel {
+namespace Estoque.Dtos {
+    public class UpdateEmployeeDto {
 
         [Required(ErrorMessage = "Nome é necessario!")]
         public string Name { get; set; }

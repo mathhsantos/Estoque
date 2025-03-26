@@ -1,9 +1,10 @@
 ﻿
+using Estoque.Dtos;
 using Estoque.Interfaces;
 using Estoque.Models;
-using Estoque.Repositories;
 using Estoque.ViewModels;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore.ValueGeneration.Internal;
 using SecureIdentity.Password;
 
 namespace Estoque.Controllers {
@@ -19,85 +20,157 @@ namespace Estoque.Controllers {
         }
 
         [HttpPost("")]
-        public async Task<IActionResult> PostEmployees([FromBody] CreateEmployeeViewModel employeeModel) {
+        public async Task<IActionResult> PostEmployees([FromBody] CreateEmployeeDto employeeModel) {
 
-            var employee = new Employee() {
-                Name = employeeModel.Name,
-                Email = employeeModel.Email,
-                PasswordHash = PasswordHasher.Hash(employeeModel.PasswordHash),
-                DepartmentId = employeeModel.DepartmentId,
-                CompanySiteId = employeeModel.CompanySiteId   
-            };
+            try {
 
-            await _employeeRepository.InsertEmployee(employee);
+                var employee = new Employee() {
+                    Name = employeeModel.Name,
+                    Email = employeeModel.Email,
+                    PasswordHash = PasswordHasher.Hash(employeeModel.PasswordHash),
+                    DepartmentId = employeeModel.DepartmentId,
+                    CompanySiteId = employeeModel.CompanySiteId
+                };
 
-            if(!(await _employeeRepository.SaveChanges())) {
-                return BadRequest(new ResponseViewModel<Employee>("Erro no banco! Não foi possivel salvar"));
-            }
+                await _employeeRepository.InsertEmployee(employee);
+
+                if (!(await _employeeRepository.SaveChanges())) {
+                    return BadRequest(new ResponseViewModel<Employee>("Erro no banco! Não foi possivel salvar"));
+                }
 
 
-            return Created($"v1/employee/{employee.Id}", new ResponseViewModel<Employee>(employee));
+                return Created($"v1/employee/{employee.Id}", new ResponseViewModel<string>($"Usuario Id = {employee.Id} criado com sucesso!", null));
+            
+            } catch (Exception e) {
+
+                return StatusCode(500, "Erro no servidor! Tente novamente mais tarde");
+            } 
         }
 
         [HttpGet("")]
         public async Task<ActionResult<IEnumerable<Employee>>> GetEmployees() {
 
-            var employees = await _employeeRepository.GetEmployees();
+            try {
 
-            return Ok(new ResponseViewModel<IEnumerable<Employee>>(employees));
+                var employees = await _employeeRepository.GetEmployees();
+
+                List<ReadManyEmployeesDto> employeesTdo = new List<ReadManyEmployeesDto>();
+
+                foreach (Employee employee in employees) {
+
+                    employeesTdo.Add(new ReadManyEmployeesDto() {
+                        Id = employee.Id,
+                        Name = employee.Name,
+                        Email = employee.Email,
+                        Department = employee.Department.Name.ToString(),
+                        CompanySite = employee.CompanySite.SiteName.ToString(),
+                    });
+                }
+
+                return Ok(new ResponseViewModel<IEnumerable<ReadManyEmployeesDto>>(employeesTdo));
+            
+            } catch (Exception e) {
+
+                return StatusCode(500, "Erro no servidor! Tente novamente mais tarde");
+            }
         }
 
         [HttpGet("{id:int}")]
         public async Task<IActionResult> GetEmployeeById([FromRoute] int id) {
 
-            var employee = await _employeeRepository.GetOneEmployee(id);
+            try {
+                var employee = await _employeeRepository.GetOneEmployee(id);
 
-            if(employee == null) {
-                return NotFound(new ResponseViewModel<Employee>($"Usuario Id = {id} não encontrado"));
+                if (employee == null) {
+                    return NotFound(new ResponseViewModel<Employee>($"Usuario Id = {id} não encontrado"));
+                }
+
+                List<ReadListItEquipmentDto> equipmentsList = new List<ReadListItEquipmentDto>();
+
+                foreach (ItEquipment equipment in employee.Equipments) {
+
+                    equipmentsList.Add(new ReadListItEquipmentDto() {
+                        Id = equipment.Id,
+                        AssaAbloyTag = equipment.AssaAbloyTag,
+                        Description = equipment.Description,
+                        TypeEquipment = equipment.TypeEquipment.ToString()
+                    });
+                }
+
+                var employeeTdo = new ReadOneEmployeeDto() {
+                    Id = employee.Id,
+                    Name = employee.Name,
+                    Email = employee.Email,
+                    Department = employee.Department.Name.ToString(),
+                    CompanySite = employee.CompanySite.SiteName.ToString(),
+                    Equipments = equipmentsList
+                };
+
+                return Ok(new ResponseViewModel<ReadOneEmployeeDto>(employeeTdo));
+            
+            } catch (Exception e) {
+
+                return StatusCode(500, "Erro no servidor! Tente novamente mais tarde");
             }
 
-            return Ok(new ResponseViewModel<Employee>(employee));  
+            
         }
 
         [HttpPut("{id:int}")]
-        public async Task<IActionResult> PutEmployee([FromRoute] int id, [FromBody] UpdateEmployeeViewModel employeeModel) {
+        public async Task<IActionResult> PutEmployee([FromRoute] int id, [FromBody] UpdateEmployeeDto employeeModel) {
 
-            var employee = await _employeeRepository.GetOneEmployee(id);
+            try {
 
-            if(employee == null) {
-                return NotFound(new ResponseViewModel<Employee>($"Usuario Id = {id} não encontrado"));
+                var employee = await _employeeRepository.GetOneEmployee(id);
+
+                if (employee == null) {
+                    return NotFound(new ResponseViewModel<Employee>($"Usuario Id = {id} não encontrado"));
+                }
+
+                employee.Name = employeeModel.Name;
+                employee.DepartmentId = employeeModel.DepartmentId;
+                employee.CompanySiteId = employeeModel.CompanySitId;
+
+                _employeeRepository.UpdateEmployee(employee);
+
+                if (!(await _employeeRepository.SaveChanges())) {
+                    return BadRequest(new ResponseViewModel<Employee>("Erro no banco! Não foi possivel salvar"));
+                }
+
+                return Ok(new ResponseViewModel<string>($"Usuario Id = {employee.Id} atualizado com sucesso!", null));
+            
+            } catch (Exception e) {
+
+                return StatusCode(500, "Erro no servidor! Tente novamente mais tarde");
             }
-
-            employee.Name = employeeModel.Name;
-            employee.DepartmentId = employeeModel.DepartmentId;
-            employee.CompanySiteId = employeeModel.CompanySitId;
-
-            _employeeRepository.UpdateEmployee(employee);
-
-            if (!(await _employeeRepository.SaveChanges())) {
-                return BadRequest(new ResponseViewModel<Employee>("Erro no banco! Não foi possivel salvar"));
-            }
-
-            return Ok(new ResponseViewModel<string>($"Usuario Id = {employee.Id} atualizado com sucesso!", null));
-
         }
 
         [HttpDelete("{id:int}")]
         public async Task<IActionResult> DeleteEmployee([FromRoute] int id) {
 
-            var employee = await _employeeRepository.GetOneEmployee(id);
 
-            if(employee == null) {
-                return NotFound(new ResponseViewModel<Employee>($"Usuario Id = {id} não encontrado"));
-            }
+            try {
 
-            _employeeRepository.DeleteEmployee(employee);
+                var employee = await _employeeRepository.GetOneEmployee(id);
 
-            if (!(await _employeeRepository.SaveChanges())) {
-                return BadRequest(new ResponseViewModel<Employee>("Erro no banco! Não foi possivel salvar"));
-            }
+                if (employee == null) {
+                    return NotFound(new ResponseViewModel<Employee>($"Usuario Id = {id} não encontrado"));
+                }
 
-            return Ok(new ResponseViewModel<string>($"Usuario Id = {employee.Id} atualizado com sucesso!", null));
+                _employeeRepository.DeleteEmployee(employee);
+
+                if (!(await _employeeRepository.SaveChanges())) {
+                    return BadRequest(new ResponseViewModel<Employee>("Erro no banco! Não foi possivel salvar"));
+                }
+
+                return Ok(new ResponseViewModel<string>($"Usuario Id = {employee.Id} removido com sucesso!", null));
+            
+            } catch(Exception e) {
+
+                return StatusCode(500, "Erro no servidor! Tente novamente mais tarde");
+            } 
+
+            
         }
     }
 }

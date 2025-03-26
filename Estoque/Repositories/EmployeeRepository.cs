@@ -20,14 +20,22 @@ namespace Estoque.Repositories {
 
         public async Task<IEnumerable<Employee>> GetEmployees() {
 
-            var EmployeeList = await _db.Employees.AsNoTracking().ToListAsync();
+            var EmployeeList = await _db.Employees
+                .AsNoTracking()
+                .Include(x => x.Department)
+                .Include(x => x.CompanySite)
+                .ToListAsync();
 
             return EmployeeList;
         }
 
         public async Task<Employee> GetOneEmployee(int id) {
 
-            var employee = await _db.Employees.Include(x=>x.Equipments).FirstOrDefaultAsync(x => x.Id == id);
+            var employee = await _db.Employees
+                .Include(x => x.Department)
+                .Include(x => x.CompanySite)
+                .Include(x => x.Equipments)
+                .FirstOrDefaultAsync(x => x.Id == id);
 
             if (employee == null) {
                 return null;
