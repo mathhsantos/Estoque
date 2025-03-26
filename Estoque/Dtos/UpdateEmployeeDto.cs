@@ -7,11 +7,12 @@ namespace Estoque.Dtos {
         [Required(ErrorMessage = "Nome é necessario!")]
         public string Name { get; set; }
 
-        [Required(ErrorMessage = "Departamento é necessario")]
+        [Required(ErrorMessage = "Departamento é necessario!")]
+        [Range(1, 11, ErrorMessage = "Escolha o ID do departamento de 1 a 11")]
         public int DepartmentId { get; set; }
 
         [Required(ErrorMessage = "Company Site é necessario!")]
-        public int CompanySitId { get; set; }
-
+        [Range(1, 3, ErrorMessage = "Escolha o ID da CompanySite de 1 a 3")]
+        public int CompanySiteId { get; set; }
     }
 }

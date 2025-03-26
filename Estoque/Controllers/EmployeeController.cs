@@ -15,6 +15,7 @@ namespace Estoque.Controllers {
 
         private readonly IEmployeeRepository _employeeRepository;
 
+
         public EmployeeController(IEmployeeRepository employeeRepository) {
             _employeeRepository = employeeRepository;
         }
@@ -41,7 +42,7 @@ namespace Estoque.Controllers {
 
                 return Created($"v1/employee/{employee.Id}", new ResponseViewModel<string>($"Usuario Id = {employee.Id} criado com sucesso!", null));
             
-            } catch (Exception e) {
+            } catch {
 
                 return StatusCode(500, "Erro no servidor! Tente novamente mais tarde");
             } 
@@ -69,7 +70,7 @@ namespace Estoque.Controllers {
 
                 return Ok(new ResponseViewModel<IEnumerable<ReadManyEmployeesDto>>(employeesTdo));
             
-            } catch (Exception e) {
+            } catch {
 
                 return StatusCode(500, "Erro no servidor! Tente novamente mais tarde");
             }
@@ -79,6 +80,7 @@ namespace Estoque.Controllers {
         public async Task<IActionResult> GetEmployeeById([FromRoute] int id) {
 
             try {
+
                 var employee = await _employeeRepository.GetOneEmployee(id);
 
                 if (employee == null) {
@@ -108,7 +110,7 @@ namespace Estoque.Controllers {
 
                 return Ok(new ResponseViewModel<ReadOneEmployeeDto>(employeeTdo));
             
-            } catch (Exception e) {
+            } catch {
 
                 return StatusCode(500, "Erro no servidor! Tente novamente mais tarde");
             }
@@ -139,7 +141,7 @@ namespace Estoque.Controllers {
 
                 return Ok(new ResponseViewModel<string>($"Usuario Id = {employee.Id} atualizado com sucesso!", null));
             
-            } catch (Exception e) {
+            } catch {
 
                 return StatusCode(500, "Erro no servidor! Tente novamente mais tarde");
             }
@@ -165,7 +167,7 @@ namespace Estoque.Controllers {
 
                 return Ok(new ResponseViewModel<string>($"Usuario Id = {employee.Id} removido com sucesso!", null));
             
-            } catch(Exception e) {
+            } catch {
 
                 return StatusCode(500, "Erro no servidor! Tente novamente mais tarde");
             } 
