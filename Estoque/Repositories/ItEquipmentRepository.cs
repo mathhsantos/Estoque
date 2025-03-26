@@ -19,13 +19,19 @@ namespace Estoque.Repositories {
 
         public async Task<IEnumerable<ItEquipment>> GetEquipments() {
 
-            var equipaments = await _db.ItEquipments.AsNoTracking().ToListAsync();
+            var equipaments = await _db.ItEquipments
+                .AsNoTracking()
+                .Include(x => x.Employee)
+                .ToListAsync();
 
             return equipaments;
         }
 
         public async Task<ItEquipment> GetOneEquipment(int id) {
-            var equipament = await _db.ItEquipments.FirstOrDefaultAsync(x => x.Id == id);
+
+            var equipament = await _db.ItEquipments
+                .Include(x => x.Employee)
+                .FirstOrDefaultAsync(x => x.Id == id);
 
             if(equipament == null) {
                 return null;

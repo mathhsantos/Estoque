@@ -1,9 +1,6 @@
-
-using Estoque.Controllers;
 using Estoque.Data;
 using Estoque.Interfaces;
 using Estoque.Repositories;
-using System.Text.Json.Serialization;
 
 namespace Estoque {
     public class Program {

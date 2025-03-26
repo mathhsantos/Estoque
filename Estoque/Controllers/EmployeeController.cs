@@ -15,7 +15,6 @@ namespace Estoque.Controllers {
 
         private readonly IEmployeeRepository _employeeRepository;
 
-
         public EmployeeController(IEmployeeRepository employeeRepository) {
             _employeeRepository = employeeRepository;
         }
@@ -38,7 +37,6 @@ namespace Estoque.Controllers {
                 if (!(await _employeeRepository.SaveChanges())) {
                     return BadRequest(new ResponseViewModel<Employee>("Erro no banco! Não foi possivel salvar"));
                 }
-
 
                 return Created($"v1/employee/{employee.Id}", new ResponseViewModel<string>($"Usuario Id = {employee.Id} criado com sucesso!", null));
             
@@ -87,11 +85,11 @@ namespace Estoque.Controllers {
                     return NotFound(new ResponseViewModel<Employee>($"Usuario Id = {id} não encontrado"));
                 }
 
-                List<ReadListItEquipmentDto> equipmentsList = new List<ReadListItEquipmentDto>();
+                List<ReadListItEquipmentstoEmployeeDto> equipmentsList = new List<ReadListItEquipmentstoEmployeeDto>();
 
                 foreach (ItEquipment equipment in employee.Equipments) {
 
-                    equipmentsList.Add(new ReadListItEquipmentDto() {
+                    equipmentsList.Add(new ReadListItEquipmentstoEmployeeDto() {
                         Id = equipment.Id,
                         AssaAbloyTag = equipment.AssaAbloyTag,
                         Description = equipment.Description,
@@ -114,8 +112,6 @@ namespace Estoque.Controllers {
 
                 return StatusCode(500, "Erro no servidor! Tente novamente mais tarde");
             }
-
-            
         }
 
         [HttpPut("{id:int}")]
@@ -131,7 +127,7 @@ namespace Estoque.Controllers {
 
                 employee.Name = employeeModel.Name;
                 employee.DepartmentId = employeeModel.DepartmentId;
-                employee.CompanySiteId = employeeModel.CompanySitId;
+                employee.CompanySiteId = employeeModel.CompanySiteId;
 
                 _employeeRepository.UpdateEmployee(employee);
 
@@ -149,7 +145,6 @@ namespace Estoque.Controllers {
 
         [HttpDelete("{id:int}")]
         public async Task<IActionResult> DeleteEmployee([FromRoute] int id) {
-
 
             try {
 
@@ -170,9 +165,7 @@ namespace Estoque.Controllers {
             } catch {
 
                 return StatusCode(500, "Erro no servidor! Tente novamente mais tarde");
-            } 
-
-            
+            }   
         }
     }
 }

@@ -2,7 +2,7 @@
 using Estoque.Models;
 
 namespace Estoque.Dtos {
-    public class ReadListItEquipmentDto {
+    public class ReadListItEquipmentstoEmployeeDto {
         public int Id { get; set; }
         public string? Description { get; set; }
         public string? AssaAbloyTag { get; set; }

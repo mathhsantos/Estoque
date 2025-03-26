@@ -7,7 +7,7 @@ namespace Estoque.Dtos {
         public string? Email { get; set; }
         public string Department { get; set; }
         public string CompanySite { get; set; }
-        public List<ReadListItEquipmentDto> Equipments { get; set; } = new List<ReadListItEquipmentDto>();
+        public List<ReadListItEquipmentstoEmployeeDto> Equipments { get; set; } = new List<ReadListItEquipmentstoEmployeeDto>();
     }
 }
 
