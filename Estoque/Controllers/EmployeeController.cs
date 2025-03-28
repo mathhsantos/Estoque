@@ -4,7 +4,6 @@ using Estoque.Interfaces;
 using Estoque.Models;
 using Estoque.ViewModels;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore.ValueGeneration.Internal;
 using SecureIdentity.Password;
 
 namespace Estoque.Controllers {
